@@ -1,3 +1,15 @@
+##########################################
+#									     #
+#									     #
+# File name: blackhole.py                #
+# Author: Siddhant Verma (siddver007)    #
+# Thanks: [macvendors.co, ryland192000]  #
+# Python Version: 2.7.x                  #
+#										 #
+#                  						 #
+##########################################
+
+
 import sys
 from colorama import init
 from termcolor import cprint
@@ -7,6 +19,7 @@ from scapy.all import *
 from time import sleep
 import random
 import traceback
+import urllib2
 
 
 def welcome():
@@ -25,14 +38,22 @@ def sniff(ipv4, gateway_ipv4, interface, re_sniff = 0):
 	print('\n\n')
 	resp,unans=srp(Ether(dst="ff:ff:ff:ff:ff:ff")/ARP(pdst=ipv4),
 			timeout=2, verbose=False, iface=interface)
-	print('IPv4          :          MAC')
-	print('..................................')
+	print('IPv4          :          MAC          :          Vendor')
+	print('........................................................')
 	# not using this because now displaying MAC vendors too
 	# resp.summary(lambda(s,r): r.sprintf("%ARP.psrc% : %Ether.src%") )
 	ip_mac = {}
 	for x in resp:
 		ip_mac[str(x[1][ARP].psrc)] = str(x[1][Ether].src)
-		print(str(x[1][ARP].psrc) + ' : ' + str(x[1][Ether].src))
+		try:
+			vendor = urllib2.urlopen("https://macvendors.co/api/%s/pipe" %(str(x[1][Ether].src))).read()
+			vendor = vendor.split('|')[0].replace('"', '')
+			if 'no result' in vendor:
+				vendor = ''
+		except Exception, e:
+			vendor = ''
+			pass	
+		print(str(x[1][ARP].psrc) + ' : ' + str(x[1][Ether].src) + ' : ' + vendor)
 	if '/' not in ipv4:
 		if bool(ip_mac):
 			resp_g,unans_g=srp(Ether(dst="ff:ff:ff:ff:ff:ff")/ARP(pdst=gateway_ipv4),
