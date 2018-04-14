@@ -1,13 +1,7 @@
-##########################################
-#									     #
-#									     #
-# File name: blackhole.py                #
-# Author: Siddhant Verma (siddver007)    #
-# Thanks: [macvendors.co, ryland192000]  #
-# Python Version: 2.7.x                  #
-#										 #
-#                  						 #
-##########################################
+# File name: blackhole.py
+# Author: Siddhant Verma (siddver007)
+# Thanks: [macvendors.co, ryland192000]
+# Python Version: 2.7.x
 
 
 import sys
